@@ -13,10 +13,12 @@ import java.util.concurrent.CompletableFuture;
 public class SlackRequestBuilderFactory {
 
     private static final String API_URI = "https://slack.com/api/";
+    private static final String AUTHORIZATION = "Authorization";
 
-    private HttpClient httpClient;
-    private String token;
-    private int responseTimeout;
+    private final HttpClient httpClient;
+    private final String token;
+    private final String authHeader;
+    private final int responseTimeout;
 
     public SlackRequestBuilderFactory(HttpClient httpClient, String token) {
         this(httpClient, token, 5000);
@@ -25,6 +27,7 @@ public class SlackRequestBuilderFactory {
     public SlackRequestBuilderFactory(HttpClient httpClient, String token, int responseTimeout) {
         this.httpClient = httpClient;
         this.token = token;
+        this.authHeader = "Bearer " + token;
         this.responseTimeout = responseTimeout;
     }
 
@@ -33,12 +36,11 @@ public class SlackRequestBuilderFactory {
     }
 
     public class SlackRequestBuilder {
-        private String uri;
-        private MultiMap<String, String> params;
+        private final String uri;
+        private final MultiMap<String, String> params;
 
         SlackRequestBuilder(String slackMethod) {
             this.params = new MultiMap<>();
-            this.params.put("token", token);
             this.uri = API_URI + slackMethod;
         }
 
@@ -53,6 +55,7 @@ public class SlackRequestBuilderFactory {
             return httpClient.sendAsync(HttpRequest.builder()
                     .method(GET)
                     .uri(uri)
+                    .addHeader(AUTHORIZATION, authHeader)
                     .queryParams(params)
                     .build(), responseTimeout, true, null);
         }

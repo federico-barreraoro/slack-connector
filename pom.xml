@@ -6,7 +6,7 @@
 
     <groupId>org.mule.connectors</groupId>
     <artifactId>mule-slack-connector</artifactId>
-    <version>4.3.0</version>
+    <version>4.3.1-SNAPSHOT</version>
     <packaging>mule-extension</packaging>
 
     <parent>

@@ -40,6 +40,7 @@ import java.util.function.Consumer;
 
 public class SlackConnection {
 
+    private static final String AUTHORIZATION = "Authorization";
     private final SlackRequestBuilderFactory requestBuilderFactory;
     public Conversations conversations;
     public Channel channel;
@@ -54,11 +55,13 @@ public class SlackConnection {
     public Reactions reactions;
     private HttpClient httpClient;
     private String token;
+    private String authHeader;
     @Inject
     private ExpressionManager expressionManager;
 
     SlackConnection(String token, HttpService httpService, ProxyConfig proxyConfig) {
         this.token = token;
+        this.authHeader = "Bearer " + token;
         initHttpClient(httpService, proxyConfig);
         requestBuilderFactory = new SlackRequestBuilderFactory(httpClient, token);
         channel = new Channel(this);
@@ -101,7 +104,6 @@ public class SlackConnection {
     }
 
     public CompletableFuture<HttpResponse> sendAsyncRequest(HttpConstants.Method method, String uri, MultiMap<String, String> parameterMap, HttpEntity httpEntity) {
-        parameterMap.put("token", token);
 
         HttpRequestBuilder builder = HttpRequest.builder();
 
@@ -110,6 +112,7 @@ public class SlackConnection {
         }
 
         return httpClient.sendAsync(builder
+                .addHeader(AUTHORIZATION, authHeader)
                 .method(method)
                 .uri(uri)
                 .queryParams(parameterMap)
@@ -118,9 +121,9 @@ public class SlackConnection {
 
     public CompletableFuture<HttpResponse> getWebSocketURI() {
         MultiMap<String, String> parameterMap = new MultiMap<>();
-        parameterMap.put("token", token);
 
         return httpClient.sendAsync(HttpRequest.builder()
+                .addHeader(AUTHORIZATION, authHeader)
                 .method(GET)
                 .uri(API_URI + RTM_CONNECT)
                 .queryParams(parameterMap)
