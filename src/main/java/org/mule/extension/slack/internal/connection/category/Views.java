@@ -60,7 +60,7 @@ public class Views {
                                                   String hash) {
         MultiMap<String, String> parameterMap = new MultiMap<>();
         parameterMap.put("view", IOUtils.toString(view));
-        parameterMap.put("userId", userId);
+        parameterMap.put("user_id", userId);
         ifPresent(hash, (h) -> parameterMap.put("hash", h));
 
         return slackConnection.sendAsyncRequest(API_URI + VIEWS_PUBLISH, parameterMap);
